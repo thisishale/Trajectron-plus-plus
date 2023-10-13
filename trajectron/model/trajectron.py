@@ -20,16 +20,16 @@ class Trajectron(object):
 
         self.env = None
 
-        self.min_ht = self.hyperparams['minimum_history_length']
-        self.max_ht = self.hyperparams['maximum_history_length']
-        self.ph = self.hyperparams['prediction_horizon']
-        self.state = self.hyperparams['state']
+        self.min_ht = self.hyperparams['minimum_history_length']#1
+        self.max_ht = self.hyperparams['maximum_history_length']#7
+        self.ph = self.hyperparams['prediction_horizon']#12
+        self.state = self.hyperparams['state']#1
         self.state_length = dict()
         for state_type in self.state.keys():
             self.state_length[state_type] = int(
                 np.sum([len(entity_dims) for entity_dims in self.state[state_type].values()])
             )
-        self.pred_state = self.hyperparams['pred_state']
+        self.pred_state = self.hyperparams['pred_state'] #{'PEDESTRIAN': {'velocity': ['x', 'y']}}
 
     def set_environment(self, env):
         self.env = env
@@ -72,8 +72,8 @@ class Trajectron(object):
          robot_traj_st_t,
          map) = batch
 
-        x = x_t.to(self.device)
-        y = y_t.to(self.device)
+        x = x_t.to(self.device) #torch.Size([256, 8, 6])
+        y = y_t.to(self.device) #torch.Size([256, 12, 2])
         x_st_t = x_st_t.to(self.device)
         y_st_t = y_st_t.to(self.device)
         if robot_traj_st_t is not None:

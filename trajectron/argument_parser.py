@@ -4,7 +4,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--conf",
                     help="path to json config file for hyperparameters",
                     type=str,
-                    default='../config/config.json')
+                    default='E:/Research/code/traj/Trajectron-plus-plus/config/config.json')
 
 parser.add_argument("--debug",
                     help="disable all disk writing processes.",
@@ -97,17 +97,17 @@ parser.add_argument('--no_edge_encoding',
 parser.add_argument("--data_dir",
                     help="what dir to look in for data",
                     type=str,
-                    default='../experiments/processed')
+                    default='E:/Research/code/traj/Trajectron-plus-plus/experiments/processed')
 
 parser.add_argument("--train_data_dict",
                     help="what file to load for training data",
                     type=str,
-                    default='train.pkl')
+                    default='eth_train.pkl')
 
 parser.add_argument("--eval_data_dict",
                     help="what file to load for evaluation data",
                     type=str,
-                    default='val.pkl')
+                    default='eth_val.pkl')
 
 parser.add_argument("--log_dir",
                     help="what dir to save training information (i.e., saved models, logs, etc)",
@@ -122,7 +122,7 @@ parser.add_argument("--log_tag",
 parser.add_argument('--device',
                     help='what device to perform training on',
                     type=str,
-                    default='cuda:0')
+                    default='cpu')
 
 parser.add_argument("--eval_device",
                     help="what device to use during evaluation",
@@ -133,7 +133,7 @@ parser.add_argument("--eval_device",
 parser.add_argument("--train_epochs",
                     help="number of iterations to train for",
                     type=int,
-                    default=1)
+                    default=10)
 
 parser.add_argument('--batch_size',
                     help='training batch size',

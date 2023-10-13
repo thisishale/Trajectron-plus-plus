@@ -528,7 +528,7 @@ class MultimodalGenerativeCVAE(object):
 
         last_index_per_sequence = -(first_history_indices + 1)
 
-        return outputs[torch.arange(first_history_indices.shape[0]), last_index_per_sequence]
+        return outputs[torch.arange(first_history_indices.shape[0]).long(), last_index_per_sequence.long()]
 
     def encode_edge(self,
                     mode,
@@ -606,7 +606,7 @@ class MultimodalGenerativeCVAE(object):
                             training=(mode == ModeKeys.TRAIN))  # [bs, max_time, enc_rnn_dim]
 
         last_index_per_sequence = -(first_history_indices + 1)
-        ret = outputs[torch.arange(last_index_per_sequence.shape[0]), last_index_per_sequence]
+        ret = outputs[torch.arange(last_index_per_sequence.shape[0]).long(), last_index_per_sequence.long()]
         if self.hyperparams['dynamic_edges'] == 'yes':
             return ret * combined_edge_masks
         else:
@@ -762,7 +762,7 @@ class MultimodalGenerativeCVAE(object):
         """
         Projects tensor to parameters of a GMM with N components and D dimensions.
 
-        :param tensor: Input tensor.
+        :param tensor: Input tensor. torch.Size([6400, 128])
         :return: tuple(log_pis, mus, log_sigmas, corrs)
             WHERE
             - log_pis: Weight (logarithm) of each GMM component. [N]
@@ -770,10 +770,14 @@ class MultimodalGenerativeCVAE(object):
             - log_sigmas: Standard Deviation (logarithm) of each GMM component. [N, D]
             - corrs: Correlation between the GMM components. [N]
         """
-        log_pis = self.node_modules[self.node_type + '/decoder/proj_to_GMM_log_pis'](tensor)
-        mus = self.node_modules[self.node_type + '/decoder/proj_to_GMM_mus'](tensor)
-        log_sigmas = self.node_modules[self.node_type + '/decoder/proj_to_GMM_log_sigmas'](tensor)
-        corrs = torch.tanh(self.node_modules[self.node_type + '/decoder/proj_to_GMM_corrs'](tensor))
+        # print(self.node_modules[self.node_type + '/decoder/proj_to_GMM_log_pis']) #Linear(in_features=128, out_features=1, bias=True)
+        # print(self.node_modules[self.node_type + '/decoder/proj_to_GMM_mus'])#Linear(in_features=128, out_features=2, bias=True)
+        # print(self.node_modules[self.node_type + '/decoder/proj_to_GMM_log_sigmas'])#Linear(in_features=128, out_features=2, bias=True)
+        # print(self.node_modules[self.node_type + '/decoder/proj_to_GMM_corrs'])#Linear(in_features=128, out_features=1, bias=True)
+        log_pis = self.node_modules[self.node_type + '/decoder/proj_to_GMM_log_pis'](tensor) #torch.Size([6400, 1])
+        mus = self.node_modules[self.node_type + '/decoder/proj_to_GMM_mus'](tensor)#torch.Size([6400, 2])
+        log_sigmas = self.node_modules[self.node_type + '/decoder/proj_to_GMM_log_sigmas'](tensor)#torch.Size([6400, 2])
+        corrs = torch.tanh(self.node_modules[self.node_type + '/decoder/proj_to_GMM_corrs'](tensor))#torch.Size([6400, 1])
         return log_pis, mus, log_sigmas, corrs
 
     def p_y_xz(self, mode, x, x_nr_t, y_r, n_s_t0, z_stacked, prediction_horizon,
@@ -820,14 +824,15 @@ class MultimodalGenerativeCVAE(object):
 
         for j in range(ph):
             h_state = cell(input_, state)
+            # print("h_state", h_state.shape) #([6400, 128])
             log_pi_t, mu_t, log_sigma_t, corr_t = self.project_to_GMM_params(h_state)
 
             gmm = GMM2D(log_pi_t, mu_t, log_sigma_t, corr_t)  # [k;bs, pred_dim]
-
+            # print(gmm.shape) doesnt have shape, is a model object
             if mode == ModeKeys.PREDICT and gmm_mode:
                 a_t = gmm.mode()
             else:
-                a_t = gmm.rsample()
+                a_t = gmm.rsample()#torch.Size([6400, 2])
 
             if num_components > 1:
                 if mode == ModeKeys.PREDICT:
@@ -860,10 +865,10 @@ class MultimodalGenerativeCVAE(object):
             input_ = torch.cat(dec_inputs, dim=1)
             state = h_state
 
-        log_pis = torch.stack(log_pis, dim=1)
-        mus = torch.stack(mus, dim=1)
-        log_sigmas = torch.stack(log_sigmas, dim=1)
-        corrs = torch.stack(corrs, dim=1)
+        log_pis = torch.stack(log_pis, dim=1) #([256, 12, 1, 25]) #6400 was 256*25 (batch*num_components)
+        mus = torch.stack(mus, dim=1) #torch.Size([256, 12, 50])
+        log_sigmas = torch.stack(log_sigmas, dim=1) #torch.Size([256, 12, 50])
+        corrs = torch.stack(corrs, dim=1)#torch.Size([256, 12, 25])
 
         a_dist = GMM2D(torch.reshape(log_pis, [num_samples, -1, ph, num_components]),
                        torch.reshape(mus, [num_samples, -1, ph, num_components * pred_dim]),

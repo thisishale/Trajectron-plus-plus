@@ -18,7 +18,7 @@ def compute_fde(predicted_trajs, gt_traj):
     return final_error.flatten()
 
 
-def compute_kde_nll(predicted_trajs, gt_traj):
+def compute_kde_nll(predicted_trajs, gt_traj):#pred:(1,num_samples,length,2) gt (lentgh,2)
     kde_ll = 0.
     log_pdf_lower_bound = -20
     num_timesteps = gt_traj.shape[0]
@@ -97,7 +97,7 @@ def compute_batch_statistics(prediction_output_dict,
             batch_error_dict[node.type]['fde'].extend(list(fde_errors))
             batch_error_dict[node.type]['kde'].extend([kde_ll])
             batch_error_dict[node.type]['obs_viols'].extend([obs_viols])
-
+            print(batch_error_dict[node.type]['kde'])
     return batch_error_dict
 
 

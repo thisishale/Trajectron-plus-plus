@@ -32,14 +32,15 @@ class GMM2D(td.Distribution):
     """
     def __init__(self, log_pis, mus, log_sigmas, corrs):
         super(GMM2D, self).__init__(batch_shape=log_pis.shape[0], event_shape=log_pis.shape[1:])
-        self.components = log_pis.shape[-1]
+        self.components = log_pis.shape[-1]#1
         self.dimensions = 2
         self.device = log_pis.device
 
         log_pis = torch.clamp(log_pis, min=-1e5)
         self.log_pis = log_pis - torch.logsumexp(log_pis, dim=-1, keepdim=True)  # [..., N]
-        self.mus = self.reshape_to_components(mus)         # [..., N, 2]
-        self.log_sigmas = self.reshape_to_components(log_sigmas)  # [..., N, 2]
+        self.mus = self.reshape_to_components(mus)         # [..., N, 2] 6400,1,2
+        # print(self.mus.shape)
+        self.log_sigmas = self.reshape_to_components(log_sigmas)  # [..., N, 2] 6400,1,2
         self.sigmas = torch.exp(self.log_sigmas)                       # [..., N, 2]
         self.one_minus_rho2 = 1 - corrs**2                        # [..., N]
         self.one_minus_rho2 = torch.clamp(self.one_minus_rho2, min=1e-5, max=1)  # otherwise log can be nan

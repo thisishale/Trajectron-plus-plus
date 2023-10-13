@@ -17,9 +17,9 @@ from model.trajectron import Trajectron
 from model.model_registrar import ModelRegistrar
 from model.model_utils import cyclical_lr
 from model.dataset import EnvironmentDataset, collate
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 # torch.autograd.set_detect_anomaly(True)
-
+print(args)
 if not torch.cuda.is_available() or args.device == 'cpu':
     args.device = torch.device('cpu')
 else:
@@ -35,7 +35,7 @@ if args.eval_device is None:
     args.eval_device = torch.device('cpu')
 
 # This is needed for memory pinning using a DataLoader (otherwise memory is pinned to cuda:0 by default)
-torch.cuda.set_device(args.device)
+# torch.cuda.set_device(args.device)
 
 if args.seed is not None:
     random.seed(args.seed)
@@ -437,4 +437,5 @@ def main():
 
 
 if __name__ == '__main__':
+    print("here")
     main()

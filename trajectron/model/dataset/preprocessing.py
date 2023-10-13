@@ -187,9 +187,19 @@ def get_node_timestep_data(env, scene, t, node, state, pred_state,
 
             patch_size = hyperparams['map_encoder'][node.type]['patch_size']
             map_tuple = (scene_map, map_point, heading_angle, patch_size)
-
+    # with order:
+    # first_history_index a number
+    # torch.Size([8, 6])
+    # torch.Size([12, 2])
+    # torch.Size([8, 6])
+    # torch.Size([12, 2])
+    #keys dict_keys([(PEDESTRIAN, PEDESTRIAN)]) values neighbors_data_st[list(neighbors_data_st.keys())[0]] a tensor of shape ... next line
+    # ... neighbors_data_st[list(neighbors_data_st.keys())[0]][0].shape [8,6] neighbors_data_st[list(neighbors_data_st.keys())[0]][2].shape (8,6)
+    # ... always two by two
+    # Same as last one except that instead of [8,6] its [1], a single value
+    # robot_traj_st_t
     return (first_history_index, x_t, y_t, x_st_t, y_st_t, neighbors_data_st,
-            neighbors_edge_value, robot_traj_st_t, map_tuple)
+        neighbors_edge_value, robot_traj_st_t, map_tuple)
 
 
 def get_timesteps_data(env, scene, t, node_type, state, pred_state,

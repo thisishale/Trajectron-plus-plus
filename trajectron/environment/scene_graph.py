@@ -338,14 +338,14 @@ if __name__ == '__main__':
                   [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                   [1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0],
                   [1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0]])[:, :, np.newaxis, np.newaxis]
-    print(B.shape)
+    # print(B.shape)
 
     edge_addition_filter = [0.25, 0.5, 0.75, 1.0]
     edge_removal_filter = [1.0, 0.5, 0.0]
     for i in range(B.shape[0]):
         A = B[i]  # (time, N, N)
 
-        print(A[:, 0, 0])
+        # print(A[:, 0, 0])
 
         start = time.time()
         new_edges = np.minimum(ss.convolve(A, np.reshape(edge_addition_filter, (-1, 1, 1)), 'full'), 1.)[(len(edge_addition_filter) - 1):]
